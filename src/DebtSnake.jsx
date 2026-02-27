@@ -11,37 +11,37 @@ const INIT_LEN = 5;
 const CARDS = [
   {
     id: "secured",
-    name: "Secured Card",
+    name: "Liberty Exclusive",
     apr: "20%",
-    desc: "Low APR, but any unpaid balance grows. Discipline wins here.",
+    desc: "A great starter card",
     headColor: "#14532d",
     bodyColor: "#4ade80",
     accent: "#86efac",
-    tagline: "STARTER",
+    tagline: "",
     growthStartMs: 7000,
     compoundFactor: 0.975,
   },
   {
     id: "rewards",
-    name: "Rewards Card",
+    name: "Luxe Rewards",
     apr: "27%",
-    desc: "The points aren't worth it if you're carrying a balance.",
+    desc: "Travel and dining!",
     headColor: "#78350f",
     bodyColor: "#fb923c",
     accent: "#fdba74",
-    tagline: "RISKY",
+    tagline: "",
     growthStartMs: 3200,
     compoundFactor: 0.94,
   },
   {
     id: "retail",
-    name: "Retail Card",
+    name: "Platinum Ultra",
     apr: "34%",
-    desc: "That 20% off at checkout is costing you 34% APR.",
+    desc: "For movers and shakers",
     headColor: "#7f1d1d",
     bodyColor: "#ef4444",
     accent: "#fca5a5",
-    tagline: "TRAP",
+    tagline: "",
     growthStartMs: 900,
     compoundFactor: 0.87,
   },
@@ -63,8 +63,39 @@ const randCell = (snake) => {
 const initSnake = () =>
   Array.from({ length: INIT_LEN }, (_, i) => ({ x: 10 - i, y: 10 }));
 
+const PAYMENT_OPTIONS = [
+  {
+    id: "full",
+    label: "Pay in Full",
+    sublabel: "Full balance each month",
+    desc: "Each payment token immediately reduces your balance to a single segment — the easiest path to zero.",
+    effect: "Token wipes balance to 1",
+    color: "var(--jade)",
+    roman: "I",
+  },
+  {
+    id: "minimum",
+    label: "Minimum Payment",
+    sublabel: "Just the minimums",
+    desc: "Each token shaves off only one segment. You're technically paying, but interest keeps compounding.",
+    effect: "Token removes 1 segment",
+    color: "#F5A623",
+    roman: "II",
+  },
+  {
+    id: "none",
+    label: "Free Money",
+    sublabel: "I won't pay",
+    desc: "No payment tokens spawn. Your balance grows unchecked. A lesson in avoidance.",
+    effect: "No tokens spawn",
+    color: "var(--ruby)",
+    roman: "III",
+  },
+];
+
 export default function DebtSnake() {
   const [screen, setScreen] = useState("select");
+  const [pendingLoan, setPendingLoan] = useState(null);
   const [, tick] = useState(0);
   const rerender = () => tick((n) => n + 1);
 
@@ -91,17 +122,19 @@ export default function DebtSnake() {
     rerender();
   };
 
-  const startGame = (loan) => {
+  const startGame = (loan, paymentType) => {
     stopAll();
     const snake = initSnake();
+    const spawnApple = paymentType !== "none";
     G.current = {
       snake,
-      apple: randCell(snake),
+      apple: spawnApple ? randCell(snake) : null,
       dir: { x: 1, y: 0 },
       nextDir: { x: 1, y: 0 },
       month: 0,
       growInterval: loan.growthStartMs,
       loan,
+      paymentType,
       alive: true,
       applesEaten: 0,
     };
@@ -128,9 +161,14 @@ export default function DebtSnake() {
 
       g.snake = [head, ...g.snake.slice(0, -1)];
 
-      if (head.x === g.apple.x && head.y === g.apple.y) {
+      if (g.apple && head.x === g.apple.x && head.y === g.apple.y) {
         g.applesEaten++;
-        const shrink = Math.min(APPLE_SHRINK, g.snake.length - 1);
+        let shrink;
+        if (g.paymentType === "full") {
+          shrink = g.snake.length - 1; // reduce to 1 segment
+        } else {
+          shrink = Math.min(APPLE_SHRINK, g.snake.length - 1); // minimum: 1
+        }
         g.snake = g.snake.slice(0, g.snake.length - shrink);
         if (g.snake.length <= 1) {
           g.alive = false;
@@ -250,7 +288,7 @@ export default function DebtSnake() {
         <p
           style={{
             color: "var(--gold-dim)",
-            fontSize: 15,
+            fontSize: 18,
             marginBottom: 48,
             textAlign: "center",
             maxWidth: 480,
@@ -258,7 +296,7 @@ export default function DebtSnake() {
             fontFamily: "'Cormorant Garamond', serif",
           }}
         >
-          Pick your card. The snake grows automatically — that's interest compounding on your balance.
+          Pick a credit card below. <br />Each card has a different interest rate and growth pattern. <br />The length of your snake is your balance; <br />it grows every month based on your card's terms.
           <br />
           Collect <span style={{ color: "var(--gold)" }}>$</span> tokens to make payments. Hit a wall, hit yourself, or run out of time and you default.
         </p>
@@ -267,7 +305,7 @@ export default function DebtSnake() {
           {CARDS.map((l, idx) => (
             <div
               key={l.id}
-              onClick={() => startGame(l)}
+              onClick={() => { setPendingLoan(l); setScreen("payment"); }}
               style={{
                 background: "var(--felt-light)",
                 border: `2px solid var(--gold)`,
@@ -370,7 +408,7 @@ export default function DebtSnake() {
                   fontStyle: "italic",
                 }}
               >
-                Place Your Bet →
+                Start your credit journey →
               </div>
             </div>
           ))}
@@ -389,6 +427,212 @@ export default function DebtSnake() {
         >
           Aligned with Jump$tart National Standards • Credit 12-1, 12-10, 12-13
         </div>
+      </div>
+    );
+
+  /* ── PAYMENT SCREEN ── */
+  if (screen === "payment")
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "var(--felt)",
+          backgroundImage: `
+            repeating-linear-gradient(
+              45deg,
+              transparent,
+              transparent 35px,
+              rgba(212, 175, 55, 0.03) 35px,
+              rgba(212, 175, 55, 0.03) 70px
+            )
+          `,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "var(--champagne)",
+          padding: 24,
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Decorative gold border */}
+        <div
+          style={{
+            position: "absolute",
+            inset: "20px",
+            border: "4px solid var(--gold)",
+            pointerEvents: "none",
+            borderRadius: "2px",
+            boxShadow: "inset 0 0 20px rgba(212, 175, 55, 0.1)",
+          }}
+        />
+
+        <div
+          style={{
+            fontSize: 11,
+            letterSpacing: 4,
+            color: "var(--gold-dim)",
+            marginBottom: 12,
+            textTransform: "uppercase",
+            fontFamily: "'Courier Prime', monospace",
+            fontWeight: 700,
+          }}
+        >
+          {pendingLoan?.name} · {pendingLoan?.apr} APR
+        </div>
+
+        <h1
+          style={{
+            fontSize: 52,
+            fontWeight: 900,
+            letterSpacing: 4,
+            margin: "0 0 12px",
+            background: "linear-gradient(135deg, var(--gold) 40%, var(--gold-light))",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            fontFamily: "'Playfair Display', serif",
+            textAlign: "center",
+          }}
+        >
+          How much do you want<br />to pay per month?
+        </h1>
+
+        <p
+          style={{
+            color: "var(--gold-dim)",
+            fontSize: 14,
+            marginBottom: 40,
+            textAlign: "center",
+            fontFamily: "'Cormorant Garamond', serif",
+            fontStyle: "italic",
+          }}
+        >
+          Your choice determines what each $ token does when you collect it.
+        </p>
+
+        <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
+          {PAYMENT_OPTIONS.map((opt) => (
+            <div
+              key={opt.id}
+              onClick={() => startGame(pendingLoan, opt.id)}
+              style={{
+                background: "var(--felt-light)",
+                border: `2px solid ${opt.color}`,
+                borderRadius: 8,
+                padding: "28px 24px",
+                cursor: "pointer",
+                width: 220,
+                transition: "all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                position: "relative",
+                overflow: "hidden",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-6px)";
+                e.currentTarget.style.boxShadow = `0 12px 24px ${opt.color}44, 0 0 20px ${opt.color}33`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
+              }}
+            >
+              {/* Roman numeral marker */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: 8,
+                  right: 12,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: opt.color,
+                  letterSpacing: 2,
+                  fontFamily: "'Courier Prime', monospace",
+                  opacity: 0.6,
+                }}
+              >
+                {opt.roman}
+              </div>
+
+              <div
+                style={{
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: opt.color,
+                  marginBottom: 6,
+                  fontFamily: "'Playfair Display', serif",
+                }}
+              >
+                {opt.label}
+              </div>
+
+              <div
+                style={{
+                  fontSize: 11,
+                  letterSpacing: 2,
+                  color: "var(--gold-dim)",
+                  marginBottom: 14,
+                  fontFamily: "'Courier Prime', monospace",
+                  textTransform: "uppercase",
+                }}
+              >
+                {opt.sublabel}
+              </div>
+
+              <div
+                style={{
+                  fontSize: 13,
+                  color: "var(--champagne)",
+                  lineHeight: 1.7,
+                  fontFamily: "'Cormorant Garamond', serif",
+                  marginBottom: 18,
+                }}
+              >
+                {opt.desc}
+              </div>
+
+              <div
+                style={{
+                  borderTop: `1px solid ${opt.color}66`,
+                  paddingTop: 12,
+                  fontSize: 11,
+                  color: opt.color,
+                  letterSpacing: 1,
+                  fontFamily: "'Courier Prime', monospace",
+                  fontWeight: 700,
+                }}
+              >
+                ↳ {opt.effect}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => setScreen("select")}
+          style={{
+            marginTop: 36,
+            padding: "10px 28px",
+            background: "transparent",
+            border: "1px solid var(--gold-dim)",
+            borderRadius: 2,
+            color: "var(--gold-dim)",
+            fontSize: 12,
+            letterSpacing: 3,
+            cursor: "pointer",
+            fontFamily: "'Courier Prime', monospace",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.color = "var(--gold)";
+            e.currentTarget.style.borderColor = "var(--gold)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.color = "var(--gold-dim)";
+            e.currentTarget.style.borderColor = "var(--gold-dim)";
+          }}
+        >
+          ← BACK
+        </button>
       </div>
     );
 
@@ -492,7 +736,7 @@ export default function DebtSnake() {
               lineHeight: 1.1,
             }}
           >
-            PAID<br />OFF
+            YOU<br />WIN
           </h1>
         </div>
 
@@ -501,7 +745,7 @@ export default function DebtSnake() {
             color: "var(--champagne)",
             textAlign: "center",
             lineHeight: 1.8,
-            fontSize: 15,
+            fontSize: 18,
             fontFamily: "'Cormorant Garamond', serif",
             fontStyle: "italic",
             position: "relative",
@@ -509,10 +753,10 @@ export default function DebtSnake() {
             maxWidth: 380,
           }}
         >
-          You paid it off. That's what consistent payments ahead of the interest curve looks like.
+          You paid it off your monthly balance in one go!<br /> It's best to stay ahead of your debt.
           <br />
           <span style={{ fontSize: 13, color: "var(--gold-dim)" }}>
-            {g?.loan.name} cleared in {g?.month} of 24 months — {g?.applesEaten} payments made.
+            {/* {g?.loan.name} cleared in {g?.month} of 24 months — {g?.applesEaten} payments made. */}
           </span>
         </p>
 
@@ -524,7 +768,7 @@ export default function DebtSnake() {
             borderRadius: 4,
             padding: "20px 24px",
             maxWidth: 380,
-            fontSize: 13,
+            fontSize: 16,
             color: "var(--gold-dim)",
             lineHeight: 1.8,
             textAlign: "center",
@@ -533,7 +777,7 @@ export default function DebtSnake() {
             zIndex: 10,
           }}
         >
-          <strong style={{ color: "var(--jade)" }}>The Takeaway:</strong> Most cardholders never reach this point. They get trapped in minimum payments and watch their balance grow despite making payments. You paid ahead of the curve.
+          <strong style={{ color: "var(--jade)" }}>The Takeaway:</strong> Paying off the full balance each month is the only way to avoid interest and keep your debt snake from spiraling out of control.
         </div>
 
         <button
