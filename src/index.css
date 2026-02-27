@@ -1,13 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Cormorant+Garamond:wght@400;500;700&family=Courier+Prime:wght@400;700&display=swap');
+
+:root {
+  --felt: #0A1E0A;
+  --felt-light: #122712;
+  --felt-mid: #1A3A1A;
+  --gold: #D4AF37;
+  --gold-light: #F0D060;
+  --gold-dim: #8B7320;
+  --champagne: #F7E7C2;
+  --smoke: #2A2A2A;
+  --ruby: #C41E3A;
+  --jade: #2D7A4A;
+  --chip-red: #CC2936;
+  --chip-blue: #1A4F8A;
+  --chip-white: #F0EAD6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: 'Cormorant Garamond', Georgia, serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--felt);
+  color: var(--champagne);
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: 'Courier Prime', monospace;
+}
+
+/* Felt texture background */
+@keyframes felted {
+  0% { background-position: 0 0; }
+  100% { background-position: 100px 100px; }
+}
+
+/* Payment chip pulse */
+@keyframes chip-pulse {
+  0%, 100% { box-shadow: 0 0 8px currentColor, 0 0 16px currentColor; }
+  50% { box-shadow: 0 0 16px currentColor, 0 0 32px currentColor; }
+}
+
+/* Win screen confetti fall */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Lose screen smoke drift */
+@keyframes smoke-drift {
+  0% {
+    transform: translateY(0) translateX(0);
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-100vh) translateX(30px);
+    opacity: 0;
+  }
+}
+
+/* Card shimmer */
+@keyframes card-shimmer {
+  0%, 100% { border-color: var(--gold); }
+  50% { border-color: var(--gold-light); }
+}
+
+/* Snake head gleam */
+@keyframes snake-head-gleam {
+  0%, 100% { box-shadow: 0 0 6px currentColor; }
+  50% { box-shadow: 0 0 12px currentColor, 0 0 20px currentColor; }
 }

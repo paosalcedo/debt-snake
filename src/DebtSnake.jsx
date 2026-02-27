@@ -1,11 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 
-// Load DM Sans from Google Fonts
-const fontLink = document.createElement("link");
-fontLink.rel = "stylesheet";
-fontLink.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700;900&display=swap";
-document.head.appendChild(fontLink);
-
 const GRID = 20;
 const CELL = 24;
 const TICK_MS = 145;
@@ -14,24 +8,24 @@ const MONTH_MS = 5000;
 const APPLE_SHRINK = 1;
 const INIT_LEN = 5;
 
-const LOANS = [
+const CARDS = [
   {
-    id: "federal",
-    name: "Federal Student Loan",
-    apr: "5%",
-    desc: "Low interest, government-backed. Hard, but survivable with discipline.",
+    id: "secured",
+    name: "Secured Card",
+    apr: "20%",
+    desc: "Low APR, but any unpaid balance grows. Discipline wins here.",
     headColor: "#14532d",
     bodyColor: "#4ade80",
     accent: "#86efac",
-    tagline: "MANAGEABLE",
-    growthStartMs: 7500,
-    compoundFactor: 0.974,
+    tagline: "STARTER",
+    growthStartMs: 7000,
+    compoundFactor: 0.975,
   },
   {
-    id: "credit",
-    name: "Credit Card",
-    apr: "22%",
-    desc: "Easy access, easy spiral. Minimum payments barely touch the interest.",
+    id: "rewards",
+    name: "Rewards Card",
+    apr: "27%",
+    desc: "The points aren't worth it if you're carrying a balance.",
     headColor: "#78350f",
     bodyColor: "#fb923c",
     accent: "#fdba74",
@@ -40,14 +34,14 @@ const LOANS = [
     compoundFactor: 0.94,
   },
   {
-    id: "payday",
-    name: "Payday Loan",
-    apr: "400%",
-    desc: "Fast cash, predatory trap. Almost impossible to escape once you're in.",
+    id: "retail",
+    name: "Retail Card",
+    apr: "34%",
+    desc: "That 20% off at checkout is costing you 34% APR.",
     headColor: "#7f1d1d",
     bodyColor: "#ef4444",
     accent: "#fca5a5",
-    tagline: "DANGER",
+    tagline: "TRAP",
     growthStartMs: 900,
     compoundFactor: 0.87,
   },
@@ -205,134 +199,178 @@ export default function DebtSnake() {
       <div
         style={{
           minHeight: "100vh",
-          background: "#060a12",
+          background: "var(--felt)",
+          backgroundImage: `
+            repeating-linear-gradient(
+              45deg,
+              transparent,
+              transparent 35px,
+              rgba(212, 175, 55, 0.03) 35px,
+              rgba(212, 175, 55, 0.03) 70px
+            )
+          `,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "'DM Sans', 'Trebuchet MS', sans-serif",
-          color: "#e2e8f0",
+          color: "var(--champagne)",
           padding: 24,
-          backgroundImage:
-            "radial-gradient(ellipse at 50% 0%, #0f2027 0%, #060a12 70%)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
+        {/* Decorative gold border */}
         <div
           style={{
-            fontSize: 11,
-            letterSpacing: 6,
-            color: "#334155",
-            marginBottom: 8,
-            textTransform: "uppercase",
+            position: "absolute",
+            inset: "20px",
+            border: "4px solid var(--gold)",
+            pointerEvents: "none",
+            borderRadius: "2px",
+            boxShadow: "inset 0 0 20px rgba(212, 175, 55, 0.1)",
           }}
-        >
-          Financial Literacy Game
-        </div>
+        />
+
         <h1
           style={{
-            fontSize: 48,
+            fontSize: 72,
             fontWeight: 900,
-            letterSpacing: 8,
-            margin: "0 0 6px",
-            background: "linear-gradient(135deg, #f8fafc 40%, #64748b)",
+            letterSpacing: 6,
+            margin: "0 0 16px",
+            background: "linear-gradient(135deg, var(--gold) 40%, var(--gold-light))",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
+            fontFamily: "'Playfair Display', serif",
+            textShadow: "2px 2px 8px rgba(0, 0, 0, 0.5)",
           }}
         >
           DEBT SNAKE
         </h1>
+
         <p
           style={{
-            color: "#475569",
-            fontSize: 13,
+            color: "var(--gold-dim)",
+            fontSize: 15,
             marginBottom: 48,
             textAlign: "center",
-            maxWidth: 400,
-            lineHeight: 1.8,
+            maxWidth: 480,
+            lineHeight: 1.9,
+            fontFamily: "'Cormorant Garamond', serif",
           }}
         >
-          Pick your loan. The snake grows automatically — that's compound
-          interest.
+          Pick your card. The snake grows automatically — that's interest compounding on your balance.
           <br />
-          Collect <span style={{ color: "#4ade80" }}>●</span> to pay it down.
-          Hit a wall, hit yourself, or run out of time and you lose.
+          Collect <span style={{ color: "var(--gold)" }}>$</span> tokens to make payments. Hit a wall, hit yourself, or run out of time and you default.
         </p>
 
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
-          {LOANS.map((l) => (
+        <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
+          {CARDS.map((l, idx) => (
             <div
               key={l.id}
               onClick={() => startGame(l)}
               style={{
-                background: "#0d1724",
-                border: `1px solid ${l.bodyColor}33`,
-                borderRadius: 4,
-                padding: "24px 22px 20px",
+                background: "var(--felt-light)",
+                border: `2px solid var(--gold)`,
+                borderRadius: 8,
+                padding: "28px 24px",
                 cursor: "pointer",
-                width: 200,
-                transition: "all 0.18s",
+                width: 220,
+                transition: "all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)",
                 position: "relative",
                 overflow: "hidden",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.border = `1px solid ${l.bodyColor}99`;
-                e.currentTarget.style.background = "#111c2c";
+                e.currentTarget.style.transform = "translateY(-6px)";
+                e.currentTarget.style.borderColor = "var(--gold-light)";
+                e.currentTarget.style.boxShadow = "0 12px 24px rgba(212, 175, 55, 0.3), 0 0 20px rgba(212, 175, 55, 0.2)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.border = `1px solid ${l.bodyColor}33`;
-                e.currentTarget.style.background = "#0d1724";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.borderColor = "var(--gold)";
+                e.currentTarget.style.boxShadow = "none";
               }}
             >
+              {/* Table number marker */}
               <div
                 style={{
-                  fontSize: 9,
+                  position: "absolute",
+                  top: 8,
+                  right: 12,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: "var(--gold-dim)",
+                  letterSpacing: 2,
+                  fontFamily: "'Courier Prime', monospace",
+                }}
+              >
+                {idx === 0 ? "I" : idx === 1 ? "II" : "III"}
+              </div>
+
+              <div
+                style={{
+                  fontSize: 10,
                   letterSpacing: 3,
-                  color: l.bodyColor,
-                  marginBottom: 10,
+                  color: "var(--gold)",
+                  marginBottom: 12,
                   fontWeight: "bold",
+                  fontFamily: "'Courier Prime', monospace",
+                  textTransform: "uppercase",
                 }}
               >
                 {l.tagline}
               </div>
+
               <div
                 style={{
-                  fontSize: 13,
-                  fontWeight: "bold",
-                  color: "#cbd5e1",
-                  marginBottom: 6,
+                  fontSize: 18,
+                  fontWeight: 600,
+                  color: "var(--champagne)",
+                  marginBottom: 8,
+                  fontFamily: "'Playfair Display', serif",
                 }}
               >
                 {l.name}
               </div>
+
               <div
                 style={{
-                  fontSize: 36,
+                  fontSize: 48,
                   fontWeight: 900,
-                  color: l.bodyColor,
+                  color: "var(--gold)",
                   lineHeight: 1,
-                  marginBottom: 12,
+                  marginBottom: 14,
+                  fontFamily: "'Playfair Display', serif",
                 }}
               >
                 {l.apr}
-                <span style={{ fontSize: 14, color: "#64748b" }}> APR</span>
               </div>
+
               <div
-                style={{ fontSize: 11, color: "#475569", lineHeight: 1.6 }}
+                style={{
+                  fontSize: 12,
+                  color: "var(--gold-dim)",
+                  lineHeight: 1.6,
+                  fontFamily: "'Cormorant Garamond', serif",
+                  marginBottom: 16,
+                }}
               >
                 {l.desc}
               </div>
+
               <div
                 style={{
-                  marginTop: 18,
-                  borderTop: `1px solid ${l.bodyColor}22`,
-                  paddingTop: 14,
-                  fontSize: 11,
-                  color: l.bodyColor,
+                  borderTop: `1px solid var(--gold-dim)`,
+                  paddingTop: 12,
+                  fontSize: 12,
+                  color: "var(--gold)",
                   letterSpacing: 2,
                   textAlign: "center",
+                  fontFamily: "'Playfair Display', serif",
+                  fontWeight: 700,
+                  fontStyle: "italic",
                 }}
               >
-                CHOOSE →
+                Place Your Bet →
               </div>
             </div>
           ))}
@@ -340,10 +378,13 @@ export default function DebtSnake() {
 
         <div
           style={{
-            marginTop: 48,
+            marginTop: 52,
             fontSize: 11,
-            color: "#1e293b",
+            color: "var(--gold-dim)",
             textAlign: "center",
+            fontFamily: "'Cormorant Garamond', serif",
+            letterSpacing: 0.5,
+            fontStyle: "italic",
           }}
         >
           Aligned with Jump$tart National Standards • Credit 12-1, 12-10, 12-13
@@ -357,84 +398,172 @@ export default function DebtSnake() {
       <div
         style={{
           minHeight: "100vh",
-          background: "#060a12",
+          background: "var(--felt)",
+          backgroundImage: `
+            repeating-linear-gradient(
+              45deg,
+              transparent,
+              transparent 35px,
+              rgba(45, 122, 74, 0.05) 35px,
+              rgba(45, 122, 74, 0.05) 70px
+            )
+          `,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "'DM Sans', 'Trebuchet MS', sans-serif",
-          color: "#e2e8f0",
+          color: "var(--champagne)",
           padding: 24,
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <div style={{ fontSize: 64, marginBottom: 16 }}>💵</div>
+        {/* Confetti animation */}
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div
+            key={`confetti-${i}`}
+            style={{
+              position: "fixed",
+              width: "8px",
+              height: "8px",
+              background: "var(--gold)",
+              top: "-20px",
+              left: `${Math.random() * 100}%`,
+              animation: `confetti-fall ${2 + Math.random() * 2}s linear infinite`,
+              zIndex: 1,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
+
         <div
           style={{
-            fontSize: 9,
-            letterSpacing: 6,
-            color: "#4ade80",
-            marginBottom: 8,
-          }}
-        >
-          OBJECTIVE COMPLETE
-        </div>
-        <h1
-          style={{
-            fontSize: 40,
-            fontWeight: 900,
-            letterSpacing: 6,
-            color: "#4ade80",
-            margin: "0 0 16px",
-          }}
-        >
-          DEBT FREE
-        </h1>
-        <p style={{ color: "#64748b", textAlign: "center", lineHeight: 1.8, fontSize: 13 }}>
-          You paid off your {g?.loan.name} in {g?.month} of 24 months.
-          <br />
-          Payments made: {g?.applesEaten}
-        </p>
-        <div
-          style={{
-            marginTop: 24,
-            background: "#0d1724",
-            border: "1px solid #4ade8033",
-            borderRadius: 4,
-            padding: "16px 24px",
-            maxWidth: 360,
             fontSize: 12,
-            color: "#94a3b8",
-            lineHeight: 1.7,
-            textAlign: "center",
+            letterSpacing: 4,
+            color: "var(--jade)",
+            marginBottom: 16,
+            textTransform: "uppercase",
+            fontFamily: "'Courier Prime', monospace",
+            fontWeight: 700,
+            position: "relative",
+            zIndex: 10,
           }}
         >
-          <strong style={{ color: "#4ade80" }}>The takeaway:</strong> Consistent
-          payments beat compound interest. The earlier you pay, the less you owe.
+          Balance: $0
         </div>
+
+        {/* Ornate circular badge */}
+        <div
+          style={{
+            width: 220,
+            height: 220,
+            borderRadius: "50%",
+            border: `3px solid var(--gold)`,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: 32,
+            background: `radial-gradient(circle, var(--felt-light), var(--felt))`,
+            boxShadow: `0 0 30px rgba(212, 175, 55, 0.3), inset 0 0 20px rgba(212, 175, 55, 0.1)`,
+            position: "relative",
+            animation: "snake-head-gleam 3s ease-in-out infinite",
+            zIndex: 10,
+          }}
+        >
+          {/* Inner decorative ring */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 6,
+              borderRadius: "50%",
+              border: `1px solid var(--gold-dim)`,
+            }}
+          />
+
+          <h1
+            style={{
+              fontSize: 48,
+              fontWeight: 900,
+              margin: 0,
+              color: "var(--jade)",
+              fontFamily: "'Playfair Display', serif",
+              textAlign: "center",
+              lineHeight: 1.1,
+            }}
+          >
+            PAID<br />OFF
+          </h1>
+        </div>
+
+        <p
+          style={{
+            color: "var(--champagne)",
+            textAlign: "center",
+            lineHeight: 1.8,
+            fontSize: 15,
+            fontFamily: "'Cormorant Garamond', serif",
+            fontStyle: "italic",
+            position: "relative",
+            zIndex: 10,
+            maxWidth: 380,
+          }}
+        >
+          You paid it off. That's what consistent payments ahead of the interest curve looks like.
+          <br />
+          <span style={{ fontSize: 13, color: "var(--gold-dim)" }}>
+            {g?.loan.name} cleared in {g?.month} of 24 months — {g?.applesEaten} payments made.
+          </span>
+        </p>
+
+        <div
+          style={{
+            marginTop: 28,
+            background: "var(--felt-light)",
+            border: `1px solid var(--gold)`,
+            borderRadius: 4,
+            padding: "20px 24px",
+            maxWidth: 380,
+            fontSize: 13,
+            color: "var(--gold-dim)",
+            lineHeight: 1.8,
+            textAlign: "center",
+            fontFamily: "'Cormorant Garamond', serif",
+            position: "relative",
+            zIndex: 10,
+          }}
+        >
+          <strong style={{ color: "var(--jade)" }}>The Takeaway:</strong> Most cardholders never reach this point. They get trapped in minimum payments and watch their balance grow despite making payments. You paid ahead of the curve.
+        </div>
+
         <button
           onClick={() => setScreen("select")}
           style={{
-            marginTop: 28,
-            padding: "12px 32px",
+            marginTop: 32,
+            padding: "14px 36px",
             background: "transparent",
-            border: "1px solid #4ade80",
-            borderRadius: 4,
-            color: "#4ade80",
-            fontSize: 12,
-            fontWeight: "bold",
+            border: "2px solid var(--gold)",
+            borderRadius: 2,
+            color: "var(--gold)",
+            fontSize: 15,
+            fontWeight: 700,
             letterSpacing: 3,
             cursor: "pointer",
-            fontFamily: "inherit",
-            transition: "all 0.15s",
+            fontFamily: "'Playfair Display', serif",
+            transition: "all 0.25s",
+            position: "relative",
+            zIndex: 10,
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#4ade8022";
+            e.currentTarget.style.background = "rgba(212, 175, 55, 0.15)";
+            e.currentTarget.style.boxShadow = "0 0 16px rgba(212, 175, 55, 0.3)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = "transparent";
+            e.currentTarget.style.boxShadow = "none";
           }}
         >
-          PLAY AGAIN
+          Play Again
         </button>
       </div>
     );
@@ -442,95 +571,153 @@ export default function DebtSnake() {
   /* ── LOSE SCREEN ── */
   if (screen === "lose") {
     const lessons = {
-      payday:
-        "Payday loans are designed to trap borrowers. The average borrower takes out 8 loans per year. Many states have banned them entirely.",
-      credit:
-        "Credit card minimum payments are structured so you pay mostly interest. On a $3,000 balance at 22% APR, minimum payments can take over 10 years to clear.",
-      federal:
-        "Even federal loans spiral without a plan. Income-driven repayment, deferment, and forgiveness programs exist — use them before defaulting.",
+      secured:
+        "Even a low-APR card becomes expensive if you only make minimum payments. A $500 balance at 20% APR can take years to pay off.",
+      rewards:
+        "Rewards cards benefit cardholders who pay in full every month. Carrying a balance at 27% APR wipes out any points you earned.",
+      retail:
+        "Store cards have some of the highest APRs in consumer credit. That signup discount is rarely worth the rate you're locked into.",
     };
     return (
       <div
         style={{
           minHeight: "100vh",
-          background: "#060a12",
+          background: "#050A05",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "'DM Sans', 'Trebuchet MS', sans-serif",
-          color: "#e2e8f0",
+          color: "var(--champagne)",
           padding: 24,
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <div style={{ fontSize: 64, marginBottom: 16 }}>📉</div>
+        {/* Smoke drift animation */}
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={`smoke-${i}`}
+            style={{
+              position: "fixed",
+              width: `${80 + Math.random() * 120}px`,
+              height: `${80 + Math.random() * 120}px`,
+              background: `radial-gradient(circle, rgba(200, 200, 200, 0.3), transparent)`,
+              borderRadius: "50%",
+              bottom: `-100px`,
+              left: `${Math.random() * 100}%`,
+              animation: `smoke-drift ${5 + Math.random() * 3}s ease-out forwards`,
+              zIndex: 1,
+              pointerEvents: "none",
+              filter: "blur(8px)",
+            }}
+          />
+        ))}
+
         <div
           style={{
-            fontSize: 9,
-            letterSpacing: 6,
-            color: "#ef4444",
-            marginBottom: 8,
-          }}
-        >
-          DEBT SPIRAL
-        </div>
-        <h1
-          style={{
-            fontSize: 40,
-            fontWeight: 900,
-            letterSpacing: 6,
-            color: "#ef4444",
-            margin: "0 0 16px",
-          }}
-        >
-          GAME OVER
-        </h1>
-        <p style={{ color: "#64748b", textAlign: "center", lineHeight: 1.8, fontSize: 13 }}>
-          Your {g?.loan.name} ({g?.loan.apr} APR) got away from you.
-          <br />
-          The interest compounded faster than you could pay.
-        </p>
-        <div
-          style={{
-            marginTop: 24,
-            background: "#0d1724",
-            border: "1px solid #ef444433",
-            borderRadius: 4,
-            padding: "16px 24px",
-            maxWidth: 360,
-            fontSize: 12,
-            color: "#94a3b8",
-            lineHeight: 1.7,
+            position: "relative",
+            zIndex: 10,
             textAlign: "center",
           }}
         >
-          <strong style={{ color: "#ef4444" }}>Real talk: </strong>
-          {lessons[g?.loan.id]}
+          <div
+            style={{
+              fontSize: 12,
+              letterSpacing: 4,
+              color: "var(--ruby)",
+              marginBottom: 16,
+              textTransform: "uppercase",
+              fontFamily: "'Courier Prime', monospace",
+              fontWeight: 700,
+            }}
+          >
+            Balance Spiraled
+          </div>
+
+          {/* Stamped "DEFAULT" text */}
+          <h1
+            style={{
+              fontSize: 64,
+              fontWeight: 900,
+              letterSpacing: 3,
+              color: "var(--ruby)",
+              margin: "0 0 24px",
+              fontFamily: "'Playfair Display', serif",
+              transform: "rotate(-8deg)",
+              opacity: 0.9,
+              textShadow: "2px 2px 0px rgba(0, 0, 0, 0.5)",
+              border: `2px solid var(--ruby)`,
+              padding: "12px 20px",
+              display: "inline-block",
+            }}
+          >
+            DEFAULT
+          </h1>
+
+          <p
+            style={{
+              color: "var(--gold-dim)",
+              textAlign: "center",
+              lineHeight: 1.8,
+              fontSize: 15,
+              fontFamily: "'Cormorant Garamond', serif",
+              maxWidth: 380,
+              marginBottom: 28,
+            }}
+          >
+            Your {g?.loan.name} at {g?.loan.apr} APR compounded beyond your payment capacity.
+            <br />
+            You made it {g?.month} of 24 months.
+          </p>
+
+          {/* Torn ticket style lesson box */}
+          <div
+            style={{
+              background: "var(--felt-light)",
+              border: `1px solid var(--ruby)`,
+              borderRadius: 0,
+              padding: "20px 24px",
+              maxWidth: 400,
+              fontSize: 13,
+              color: "var(--gold-dim)",
+              lineHeight: 1.8,
+              textAlign: "center",
+              fontFamily: "'Cormorant Garamond', serif",
+              position: "relative",
+              marginBottom: 32,
+              clipPath: "polygon(0 20px, 100% 0, 100% 100%, 0 100%)",
+            }}
+          >
+            <strong style={{ color: "var(--ruby)" }}>How This Card Works:</strong> {lessons[g?.loan.id]}
+          </div>
+
+          <button
+            onClick={() => setScreen("select")}
+            style={{
+              padding: "14px 36px",
+              background: "transparent",
+              border: "2px solid var(--ruby)",
+              borderRadius: 2,
+              color: "var(--ruby)",
+              fontSize: 15,
+              fontWeight: 700,
+              letterSpacing: 3,
+              cursor: "pointer",
+              fontFamily: "'Playfair Display', serif",
+              transition: "all 0.25s",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(196, 30, 58, 0.15)";
+              e.currentTarget.style.boxShadow = "0 0 16px rgba(196, 30, 58, 0.3)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "transparent";
+              e.currentTarget.style.boxShadow = "none";
+            }}
+          >
+            Try Again
+          </button>
         </div>
-        <button
-          onClick={() => setScreen("select")}
-          style={{
-            marginTop: 28,
-            padding: "12px 32px",
-            background: "transparent",
-            border: "1px solid #ef4444",
-            borderRadius: 4,
-            color: "#ef4444",
-            fontSize: 12,
-            fontWeight: "bold",
-            letterSpacing: 3,
-            cursor: "pointer",
-            fontFamily: "inherit",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "#ef444422";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "transparent";
-          }}
-        >
-          TRY AGAIN
-        </button>
       </div>
     );
   }
@@ -540,20 +727,36 @@ export default function DebtSnake() {
   const loan = g?.loan;
   const snake = g?.snake || [];
   const apple = g?.apple;
+
+  // Color progression for months left
   const urgentColor =
-    monthsLeft <= 6 ? "#ef4444" : monthsLeft <= 12 ? "#fb923c" : "#e2e8f0";
+    monthsLeft <= 6 ? "var(--ruby)" : monthsLeft <= 12 ? "#F5A623" : "var(--champagne)";
+
+  // Determine chip color based on card type
+  const chipColor =
+    loan?.id === "retail" ? "var(--chip-red)" :
+    loan?.id === "rewards" ? "var(--chip-blue)" :
+    "var(--chip-white)";
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        background: "#060a12",
+        background: "var(--felt)",
+        backgroundImage: `
+          repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 35px,
+            rgba(212, 175, 55, 0.02) 35px,
+            rgba(212, 175, 55, 0.02) 70px
+          )
+        `,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        fontFamily: "'DM Sans', 'Trebuchet MS', sans-serif",
-        color: "#e2e8f0",
+        color: "var(--champagne)",
         padding: 12,
         userSelect: "none",
       }}
@@ -563,35 +766,46 @@ export default function DebtSnake() {
         style={{
           display: "flex",
           gap: 0,
-          marginBottom: 10,
-          border: "1px solid #1e293b",
-          borderRadius: 3,
+          marginBottom: 12,
+          borderTop: "2px solid var(--gold)",
+          borderBottom: "2px solid var(--gold)",
+          background: "var(--felt-light)",
           overflow: "hidden",
         }}
       >
         {[
-          { label: "LOAN", value: loan?.name, color: loan?.bodyColor, small: true },
-          { label: "APR", value: loan?.apr, color: loan?.bodyColor },
-          { label: "DEBT", value: snake.length, color: "#ef4444" },
+          { label: "CARD TYPE", value: loan?.name, color: "var(--gold)", small: true },
+          { label: "APR", value: loan?.apr, color: "var(--gold)" },
+          { label: "BALANCE", value: snake.length, color: "var(--ruby)" },
           { label: "MONTHS LEFT", value: monthsLeft, color: urgentColor },
         ].map((item, i) => (
           <div
             key={i}
             style={{
-              padding: "8px 16px",
-              borderRight: i < 3 ? "1px solid #1e293b" : "none",
+              padding: "10px 18px",
+              borderRight: i < 3 ? "1px solid var(--gold-dim)" : "none",
               textAlign: "center",
-              minWidth: item.small ? 140 : 90,
+              minWidth: item.small ? 150 : 100,
             }}
           >
-            <div style={{ fontSize: 8, letterSpacing: 2, color: "#334155", marginBottom: 3 }}>
+            <div
+              style={{
+                fontSize: 9,
+                letterSpacing: 2,
+                color: "var(--gold-dim)",
+                marginBottom: 4,
+                fontFamily: "'Courier Prime', monospace",
+                fontWeight: 700,
+              }}
+            >
               {item.label}
             </div>
             <div
               style={{
-                fontSize: item.small ? 12 : 20,
-                fontWeight: "bold",
+                fontSize: item.small ? 13 : 22,
+                fontWeight: 700,
                 color: item.color,
+                fontFamily: item.small ? "'Playfair Display', serif" : "'Courier Prime', monospace",
               }}
             >
               {item.value}
@@ -600,75 +814,107 @@ export default function DebtSnake() {
         ))}
       </div>
 
-      {/* Month progress bar */}
+      {/* Month progress bar (roulette wheel segment style) */}
       <div
         style={{
           width: boardPx,
-          height: 3,
-          background: "#0d1724",
-          marginBottom: 6,
-          borderRadius: 1,
+          height: 4,
+          background: "var(--felt-mid)",
+          marginBottom: 8,
+          borderRadius: 2,
+          border: "1px solid var(--gold-dim)",
+          overflow: "hidden",
         }}
       >
         <div
           style={{
             height: "100%",
             width: `${((MONTHS_TOTAL - monthsLeft) / MONTHS_TOTAL) * 100}%`,
-            background: urgentColor,
+            background: chipColor,
             borderRadius: 1,
             transition: "width 0.5s linear",
+            boxShadow: `0 0 8px ${chipColor}`,
           }}
         />
       </div>
 
-      {/* Board */}
+      {/* Board - Casino table felt */}
       <div
         style={{
           position: "relative",
           width: boardPx,
           height: boardPx,
-          background: "#080e1a",
-          border: "1px solid #1e293b",
-          outline: `1px solid ${loan?.bodyColor}11`,
-          outlineOffset: 3,
+          background: "var(--felt)",
+          border: "3px solid var(--gold)",
+          boxShadow: `inset 0 0 20px rgba(212, 175, 55, 0.1), 0 8px 24px rgba(0, 0, 0, 0.5)`,
+          backgroundImage: `
+            repeating-linear-gradient(
+              45deg,
+              transparent,
+              transparent 35px,
+              rgba(212, 175, 55, 0.03) 35px,
+              rgba(212, 175, 55, 0.03) 70px
+            )
+          `,
         }}
       >
-        {/* Grid dots */}
+        {/* Decorative corner markers */}
+        {["top-left", "top-right", "bottom-left", "bottom-right"].map((corner) => (
+          <div
+            key={corner}
+            style={{
+              position: "absolute",
+              width: 8,
+              height: 8,
+              background: "var(--gold)",
+              ...(corner === "top-left" && { top: 6, left: 6 }),
+              ...(corner === "top-right" && { top: 6, right: 6 }),
+              ...(corner === "bottom-left" && { bottom: 6, left: 6 }),
+              ...(corner === "bottom-right" && { bottom: 6, right: 6 }),
+              transform: "rotate(45deg)",
+            }}
+          />
+        ))}
+
+        {/* Grid dots (very subtle) */}
         {Array.from({ length: GRID }).map((_, row) =>
           Array.from({ length: GRID }).map((_, col) => (
             <div
               key={`${row}-${col}`}
               style={{
                 position: "absolute",
-                left: col * CELL + CELL / 2 - 1,
-                top: row * CELL + CELL / 2 - 1,
+                left: col * CELL + CELL / 2 - 0.5,
+                top: row * CELL + CELL / 2 - 0.5,
                 width: 1,
                 height: 1,
-                background: "#0f172a",
+                background: "rgba(212, 175, 55, 0.08)",
                 borderRadius: "50%",
               }}
             />
           ))
         )}
 
-        {/* Apple */}
+        {/* Payment chip (casino chip design) */}
         {apple && (
           <div
             style={{
               position: "absolute",
-              left: apple.x * CELL + 3,
-              top: apple.y * CELL + 3,
-              width: CELL - 6,
-              height: CELL - 6,
+              left: apple.x * CELL + CELL / 2 - CELL / 2 + 2,
+              top: apple.y * CELL + CELL / 2 - CELL / 2 + 2,
+              width: CELL - 4,
+              height: CELL - 4,
               borderRadius: "50%",
-              background: "#22c55e",
-              boxShadow: "0 0 10px #22c55e88, 0 0 20px #22c55e33",
+              background: `radial-gradient(circle at 30% 30%, ${chipColor}, ${chipColor}dd)`,
+              boxShadow: `0 0 12px ${chipColor}88, 0 0 24px ${chipColor}44, inset -2px -2px 4px rgba(0, 0, 0, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.1)`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: "bold",
-              color: "#052e16",
+              color: "var(--champagne)",
+              fontFamily: "'Courier Prime', monospace",
+              animation: "chip-pulse 2s ease-in-out infinite",
+              border: `2px solid ${chipColor}`,
             }}
           >
             $
@@ -678,36 +924,55 @@ export default function DebtSnake() {
         {/* Snake */}
         {snake.map((seg, i) => {
           const isHead = i === 0;
-          const fade = Math.max(0.3, 1 - (i / snake.length) * 0.65);
+          const fade = Math.max(0.4, 1 - (i / snake.length) * 0.6);
+          const segmentColor = i === 0 ? "var(--gold-light)" : i === 1 ? "var(--gold)" : "var(--gold-dim)";
+
           return (
             <div
               key={i}
               style={{
                 position: "absolute",
-                left: seg.x * CELL + 1,
-                top: seg.y * CELL + 1,
-                width: CELL - 2,
-                height: CELL - 2,
-                borderRadius: isHead ? 5 : 2,
-                background: isHead ? loan?.headColor : loan?.bodyColor,
-                opacity: isHead ? 1 : fade,
+                left: seg.x * CELL + 2,
+                top: seg.y * CELL + 2,
+                width: CELL - 4,
+                height: CELL - 4,
+                borderRadius: isHead ? "50%" : "3px",
+                background: segmentColor,
+                opacity: fade,
                 boxShadow: isHead
-                  ? `0 0 6px ${loan?.bodyColor}66`
-                  : undefined,
+                  ? `0 0 10px var(--gold), 0 0 16px rgba(240, 208, 96, 0.3), inset -2px -2px 4px rgba(0, 0, 0, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.2)`
+                  : `inset -1px -1px 3px rgba(0, 0, 0, 0.3), inset 1px 1px 2px rgba(255, 255, 255, 0.1)`,
+                border: isHead ? "2px solid var(--gold-light)" : `1px solid rgba(0, 0, 0, 0.2)`,
+                animation: isHead ? "snake-head-gleam 2s ease-in-out infinite" : "none",
               }}
-            />
+            >
+              {/* Head indicator - small eye */}
+              {isHead && (
+                <div
+                  style={{
+                    position: "absolute",
+                    width: 3,
+                    height: 3,
+                    background: "#000",
+                    borderRadius: "50%",
+                    top: "6px",
+                    right: "5px",
+                  }}
+                />
+              )}
+            </div>
           );
         })}
       </div>
 
-      {/* D-pad */}
+      {/* D-pad controls */}
       <div
         style={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 3,
-          marginTop: 12,
+          gap: 4,
+          marginTop: 14,
         }}
       >
         {[
@@ -719,23 +984,39 @@ export default function DebtSnake() {
           ],
           [{ label: "▼", dir: { x: 0, y: 1 } }],
         ].map((row, ri) => (
-          <div key={ri} style={{ display: "flex", gap: 3 }}>
+          <div key={ri} style={{ display: "flex", gap: 4 }}>
             {row.map((btn, bi) => (
               <div
                 key={bi}
                 onClick={() => btn.dir && handleDir(btn.dir)}
                 style={{
-                  width: 36,
-                  height: 36,
-                  background: btn.dir ? "#0d1724" : "transparent",
-                  border: btn.dir ? "1px solid #1e293b" : "none",
-                  borderRadius: 3,
-                  color: btn.dir ? "#475569" : "transparent",
-                  fontSize: 14,
+                  width: 40,
+                  height: 40,
+                  background: btn.dir ? `radial-gradient(circle, ${btn.dir ? "var(--felt-light)" : "transparent"}, var(--felt))` : "transparent",
+                  border: btn.dir ? "2px solid var(--gold)" : "none",
+                  borderRadius: "50%",
+                  color: btn.dir ? "var(--gold)" : "transparent",
+                  fontSize: 16,
+                  fontWeight: "bold",
                   cursor: btn.dir ? "pointer" : "default",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  fontFamily: "'Courier Prime', monospace",
+                  transition: "all 0.15s",
+                  boxShadow: btn.dir ? "inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 8px rgba(212, 175, 55, 0.2)" : "none",
+                }}
+                onMouseEnter={(e) => {
+                  if (btn.dir) {
+                    e.currentTarget.style.boxShadow = "inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 12px rgba(212, 175, 55, 0.4)";
+                    e.currentTarget.style.color = "var(--gold-light)";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (btn.dir) {
+                    e.currentTarget.style.boxShadow = "inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 8px rgba(212, 175, 55, 0.2)";
+                    e.currentTarget.style.color = "var(--gold)";
+                  }
                 }}
               >
                 {btn.label}
@@ -745,8 +1026,17 @@ export default function DebtSnake() {
         ))}
       </div>
 
-      <div style={{ fontSize: 10, color: "#1e293b", marginTop: 8 }}>
-        WASD / Arrow keys or tap controls above
+      <div
+        style={{
+          fontSize: 12,
+          color: "var(--gold-dim)",
+          marginTop: 10,
+          fontFamily: "'Cormorant Garamond', serif",
+          letterSpacing: 1,
+          fontStyle: "italic",
+        }}
+      >
+        WASD / Arrow Keys or tap controls
       </div>
     </div>
   );
